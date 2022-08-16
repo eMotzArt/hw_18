@@ -10,3 +10,17 @@ director = api.model('Director', {
     'id': fields.Integer(readonly=True, description='Director unique pkentifier'),
     'name': fields.String(required=True, description='The director name')
 })
+
+@api.route('/')
+class DirectorsView(Resource):
+    @api.marshal_list_with(director)
+    def get(self):
+        return
+
+
+@api.route('/<int:pk>')
+class DirectorView(Resource):
+    @api.marshal_with(director)
+    @api.response(code=404, description='Item not found')
+    def get(self, pk):
+        return

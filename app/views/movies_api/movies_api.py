@@ -17,3 +17,31 @@ movie = api.model('Movie', {
     'director_id': fields.Integer(required=True, description='Director id')
 })
 
+@api.route('/')
+class MoviesView(Resource):
+    @api.expect(movie_query_parser)
+    @api.marshal_list_with(movie)
+    def get(self):
+        return
+
+    @api.expect(movie_parser)
+    @api.marshal_with(movie, code=201)
+    def post(self):
+        return
+
+
+@api.route('/<int:pk>')
+class MovieView(Resource):
+    @api.marshal_with(movie)
+    @api.response(code=404, description='Item not found')
+    def get(self, pk):
+        return
+
+    @api.expect(movie_parser)
+    @api.response(code=204, description="Successfully modified")
+    def put(self, pk):
+        return
+
+    @api.response(code=204, description="Successfully deleted")
+    def delete(self, pk):
+        return
