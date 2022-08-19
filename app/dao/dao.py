@@ -26,7 +26,6 @@ class BaseDAO():
 
     def delete_item(self, pk):
         self.model.query.filter_by(id=pk).delete()
-        return
 
 class MovieDAO(BaseDAO):
     model = Movie
@@ -60,8 +59,6 @@ class MovieDAO(BaseDAO):
 
 class GenreDAO(BaseDAO):
     model = Genre
-    pass
 
 class DirectorDAO(BaseDAO):
     model = Director
-    pass

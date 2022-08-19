@@ -62,6 +62,5 @@ class MovieView(Resource):
 
     @api.response(code=204, description="Successfully deleted")
     def delete(self, pk):
-        return MovieDAO().delete_item(pk), 204
-
-
+        MovieDAO().delete_item(pk)
+        return None, 204
