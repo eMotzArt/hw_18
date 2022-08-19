@@ -1,25 +1,31 @@
-from flask import Flask
-from flask_restx import Api
-from .views import api
-from .config import Config
-# from models import Review, Book
-from .database import db
-# from views.books import book_ns
-# from views.reviews import review_ns
+from flask import Flask, g
+from app.views import api
+from app.database import db
 
 def create_app(config):
     new_app = Flask(__name__)
     new_app.config.from_object(config)
     new_app.app_context().push()
+
+    @new_app.before_request
+    def create_session():
+        """Перед каждым запросом кладет сессию в g"""
+        g.session = db.session
+
+    @new_app.after_request
+    def close_session(response):
+        try:
+            g.session.commit()
+        except:
+            g.session.rollback()
+        finally:
+            g.session.close()
+        return response
+
+
+
     return new_app
 
 def config_app(app):
     db.init_app(app)
     api.init_app(app)
-
-
-if __name__ == '__main__':
-    app = create_app(Config())
-    config_app(app)
-    app.debug = True
-    app.run(host="localhost", port=10001, debug=True)

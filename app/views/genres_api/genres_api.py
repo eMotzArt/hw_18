@@ -1,26 +1,28 @@
 from flask_restx import Namespace, Resource, fields
-
-# from app.dao.dao import GenreDAO
-from .parser import genre_parser
+from app.service import GenreService
 
 api = Namespace('genres')
 
 # api model
 genre = api.model('Genre', {
-    'id': fields.Integer(readonly=True, description='The genre unique pkentifier'),
+    'id': fields.Integer(readonly=True, description='The genre unique identifier'),
     'name': fields.String(required=True, description='The genre name')
 })
 
 @api.route('/')
 class GenresView(Resource):
+    @api.response(code=200, description='All OK')
     @api.marshal_list_with(genre)
     def get(self):
-        return
+        return GenreService().get_genres()
 
 
 @api.route('/<int:pk>')
 class GenreView(Resource):
+    @api.response(code=200, description='All OK')
+    @api.response(code=404, description='Genre with this pk is not found in database')
     @api.marshal_with(genre)
-    @api.response(code=404, description='Item not found')
     def get(self, pk):
-        return
+        if result := GenreService().get_genre_by_pk(pk):
+            return result, 200
+        return '', 404
