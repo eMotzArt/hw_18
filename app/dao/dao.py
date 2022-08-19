@@ -22,7 +22,6 @@ class BaseDAO():
 
     def update_item(self, pk, **data):
         self.model.query.filter_by(id=pk).update(data)
-        return
 
     def delete_item(self, pk):
         self.model.query.filter_by(id=pk).delete()
