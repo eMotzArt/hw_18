@@ -1,3 +1,5 @@
+import enum
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -30,6 +32,20 @@ class Genre(db.Model):
     __tablename__ = 'genre'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
+
+
+class RoleEnum(enum.Enum):
+    user = 'user'
+    uploader = 'uploader'
+    admin = 'admin'
+
+
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    role = db.Column(db.Enum(RoleEnum), nullable=False)
 
 def make_bd():
     db.drop_all()
@@ -236,6 +252,9 @@ def make_bd():
             {"name": "Короткометражка", "pk": 10}, {"name": "Ужасы", "pk": 11}, {"name": "Боевик", "pk": 12},
             {"name": "Мелодрама", "pk": 13}, {"name": "Детектив", "pk": 14}, {"name": "Авторское кино", "pk": 15},
             {"name": "Мультфильм", "pk": 16}, {"name": "Вестерн", "pk": 17}, {"name": "Мюзикл", "pk": 18}],
+        "users": [
+            {"username": "testname", "password": "testpassword", "role": "user"}
+        ]
     }
     # -------------------------------------------------------
 
@@ -268,5 +287,11 @@ def make_bd():
         )
         with db.session.begin():
             db.session.add(d)
+
+    for user in data["users"]:
+        u = User(**user
+        )
+        with db.session.begin():
+            db.session.add(u)
 if __name__ == '__main__':
     make_bd()
