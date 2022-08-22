@@ -253,7 +253,9 @@ def make_bd():
             {"name": "Мелодрама", "pk": 13}, {"name": "Детектив", "pk": 14}, {"name": "Авторское кино", "pk": 15},
             {"name": "Мультфильм", "pk": 16}, {"name": "Вестерн", "pk": 17}, {"name": "Мюзикл", "pk": 18}],
         "users": [
-            {"username": "testname", "password": "testpassword", "role": "user"}
+            {"username": "user", "password": "user_password", "role": "user"},
+            {"username": "uploader", "password": "uploader_password", "role": "uploader"},
+            {"username": "admin", "password": "GOD", "role": "admin"},
         ]
     }
     # -------------------------------------------------------

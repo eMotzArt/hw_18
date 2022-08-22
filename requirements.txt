@@ -3,3 +3,4 @@ flask-restx==0.5.1
 Flask-SQLAlchemy==2.5.1
 SQLAlchemy==1.4.40
 Werkzeug==2.0.2
+pyjwt==2.4.0
