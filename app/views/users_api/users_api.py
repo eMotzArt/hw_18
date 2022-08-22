@@ -21,25 +21,26 @@ class UsersView(Resource):
     @api.expect(user_parser)
     @api.marshal_with(user, code=201)
     def post(self):
-        return
+        data = user_parser.parse_args()
+        return UserService().add_new_user(**data)
 
 @api.route('/<int:pk>/')
 class UserView(Resource):
     @api.marshal_with(user)
     @api.response(code=404, description='User with this pk is not found in database')
     def get(self, pk):
-        # if result := DirectorService().get_director_by_pk(pk):
-        #     return result, 200
+        if result := UserService().get_user_by_pk(pk):
+            return result, 200
         return '', 404
 
     @api.expect(user_parser)
     @api.response(code=204, description="Successfully modified")
     @api.marshal_with(user)
     def put(self, pk):
-        # data = movie_parser.parse_args()
-        return # MovieDAO().update_item(pk, **data), 201
+        data = user_parser.parse_args()
+        return UserService().update_user(pk, **data)
 
     @api.response(code=204, description="Successfully deleted")
     def delete(self, pk):
-        # MovieDAO().delete_item(pk)
+        UserService().delete_user(pk)
         return None, 204
