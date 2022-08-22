@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.views.users_api.parser import user_parser
-# from app.service import DirectorService
+from app.service import UserService
 
 api = Namespace('users')
 
@@ -16,7 +16,7 @@ user = api.model('User', {
 class UsersView(Resource):
     @api.marshal_list_with(user)
     def get(self):
-        return # DirectorService().get_directors(), 200
+        return UserService().get_users()
 
     @api.expect(user_parser)
     @api.marshal_with(user, code=201)

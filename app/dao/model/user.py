@@ -8,6 +8,10 @@ class RoleEnum(enum.Enum):
     uploader = 'uploader'
     admin = 'admin'
 
+    def __str__(self):
+        return self.name
+
+
 
 class User(db.Model):
     __tablename__ = 'user'

@@ -1,9 +1,6 @@
-from sqlalchemy.exc import IntegrityError as SQLIntegrityError
-import sqlalchemy.exc
+from sqlalchemy.exc import IntegrityError
 from flask_restx import Namespace, Resource, fields
-
 from .parser import movie_parser, movie_query_parser, movie_parser_with_names
-from app.dao import MovieDAO
 from app.service import MovieService
 
 api = Namespace('movies')
@@ -60,15 +57,14 @@ class MovieView(Resource):
     @api.response(code=204, description="Successfully modified")
     def put(self, pk):
         data = movie_parser.parse_args()
-        return MovieDAO().update_item(pk, **data), 201
+        return MovieService().update_movie(pk, **data), 201
 
     @api.response(code=204, description="Successfully deleted")
     def delete(self, pk):
-        MovieDAO().delete_item(pk)
+        MovieService().delete_movie(pk)
         return None, 204
 
-    @api.errorhandler(SQLIntegrityError)
+    @api.errorhandler(IntegrityError)
     def handle_exception(error):
-        """When an unhandled exception is raised"""
         message = f"Error: {error.orig} with params: {error.params}"
         return {'message': message}, 500

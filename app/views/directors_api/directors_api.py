@@ -1,5 +1,7 @@
+from sqlalchemy.exc import IntegrityError
 from flask_restx import Namespace, Resource, fields
 from app.service import DirectorService
+from .parser import director_parser
 
 api = Namespace('directors')
 
@@ -12,16 +14,44 @@ director = api.model('Director', {
 @api.route('/')
 class DirectorsView(Resource):
     @api.marshal_list_with(director)
-    @api.response(code=200, description='All OK')
     def get(self):
         return DirectorService().get_directors(), 200
+
+    @api.response(code=201, description="Successfully created")
+    @api.response(code=500, description="Integrity Error")
+    @api.expect(director_parser)
+    @api.marshal_with(director)
+    def post(self):
+        data = director_parser.parse_args()
+        return DirectorService().add_new_director(**data), 201
+
 
 @api.route('/<int:pk>/')
 class DirectorView(Resource):
     @api.marshal_with(director)
-    @api.response(code=200, description='All OK')
     @api.response(code=404, description='Director with this pk is not found in database')
     def get(self, pk):
         if result := DirectorService().get_director_by_pk(pk):
             return result, 200
         return '', 404
+
+    @api.response(code=404, description='Director with this pk is not found in database')
+    @api.response(code=201, description='Successfully updated')
+    @api.expect(director_parser)
+    @api.marshal_with(director)
+    def put(self, pk):
+        data = director_parser.parse_args()
+        if result := DirectorService().update_director(pk, **data):
+            return result, 201
+        return '', 404
+
+    @api.response(code=204, description='Successfully deleted')
+    @api.response(code=404, description='Director with this pk is not found in database')
+    def delete(self, pk):
+        DirectorService().delete_director(pk)
+        return '', 204
+
+    @api.errorhandler(IntegrityError)
+    def handle_exception(error):
+        message = f"Error: {error.orig} with params: {error.params}"
+        return {'message': message}, 500
