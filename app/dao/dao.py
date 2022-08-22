@@ -1,7 +1,7 @@
 from flask import g
 
 from app.database import db
-from app.dao.model import Movie, Genre, Director
+from app.dao.model import Movie, Genre, Director, User
 
 class BaseDAO():
     def __init__(self):
@@ -61,3 +61,6 @@ class GenreDAO(BaseDAO):
 
 class DirectorDAO(BaseDAO):
     model = Director
+
+class UserDAO(BaseDAO):
+    model = User

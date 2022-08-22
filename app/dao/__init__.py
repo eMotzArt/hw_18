@@ -1,1 +1,1 @@
-from .dao import GenreDAO, DirectorDAO, MovieDAO
+from .dao import GenreDAO, DirectorDAO, MovieDAO, UserDAO
