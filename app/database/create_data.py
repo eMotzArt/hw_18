@@ -43,9 +43,18 @@ class RoleEnum(enum.Enum):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
+
+
+class UserTokens(db.Model):
+    __tablename__ = 'refreshtokens'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id") )
+    refresh_token = db.Column(db.String, nullable=False)
+    user = db.relationship("User", backref=db.backref("user"))
+
 
 def make_bd():
     db.drop_all()

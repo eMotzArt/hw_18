@@ -1,7 +1,7 @@
 from flask import g
 
 from app.database import db
-from app.dao.model import Movie, Genre, Director, User
+from app.dao.model import Movie, Genre, Director, User, UserToken
 
 class BaseDAO():
     def __init__(self):
@@ -66,3 +66,25 @@ class DirectorDAO(BaseDAO):
 
 class UserDAO(BaseDAO):
     model = User
+
+class AuthDAO(BaseDAO):
+    model = User
+
+    def get_user_by_name(self, username):
+        if user := self.model.query.filter_by(username=username).first():
+            return user
+
+    def record_refresh_token(self, user_id, token):
+        if user := self.session.query(UserToken).filter_by(user_id=user_id).first():
+            user.refresh_token = token
+        else:
+            user_token = UserToken(user_id=user_id, refresh_token=token)
+            self.session.add(user_token)
+        self.session.flush()
+
+    def compare_refresh_tokens(self, user_id, user_refresh_token):
+        if user := self.session.query(UserToken).filter_by(user_id=user_id).first():
+            if user.refresh_token == user_refresh_token:
+                return True
+        return False
+
