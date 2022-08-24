@@ -1,7 +1,10 @@
 from sqlalchemy.exc import IntegrityError
 from flask_restx import Namespace, Resource, fields
+
 from .parser import movie_parser, movie_query_parser, movie_parser_with_names
 from app.service import MovieService
+from app.utils.decorators import login_required, uploader_permission_required, admin_permission_required
+
 
 api = Namespace('movies')
 
@@ -23,6 +26,8 @@ class MoviesView(Resource):
     @api.response(code=404, description='Movies with this filters not found')
     @api.expect(movie_query_parser)
     @api.marshal_list_with(movie)
+    # @auth_required(rights=['user', 'uploader', 'admin'])
+    @login_required
     def get(self):
         params = movie_query_parser.parse_args()
 
@@ -30,15 +35,18 @@ class MoviesView(Resource):
             return result, 200
         return '', 404
 
-
     @api.expect(movie_parser)
     @api.marshal_with(movie, code=201)
+    # @auth_required(rights=['uploader', 'admin'])
+    @uploader_permission_required
     def post(self):
         data = movie_parser.parse_args()
         return MovieService().add_new_movie(**data)
 
     @api.expect(movie_parser_with_names)
     @api.marshal_with(movie, code=201)
+    # @auth_required(rights=['uploader', 'admin'])
+    @uploader_permission_required
     def put(self):
         data = movie_parser_with_names.parse_args()
         return MovieService().add_new_movie_with_names(**data)
@@ -48,6 +56,8 @@ class MoviesView(Resource):
 class MovieView(Resource):
     @api.marshal_with(movie)
     @api.response(code=404, description='Item not found')
+    # @auth_required(rights=['user', 'uploader', 'admin'])
+    @login_required
     def get(self, pk):
         if result := MovieService().get_movie_by_pk(pk):
             return result, 200
@@ -55,11 +65,15 @@ class MovieView(Resource):
 
     @api.expect(movie_parser)
     @api.response(code=204, description="Successfully modified")
+    # @auth_required(rights=['uploader', 'admin'])
+    @uploader_permission_required
     def put(self, pk):
         data = movie_parser.parse_args()
         return MovieService().update_movie(pk, **data), 201
 
     @api.response(code=204, description="Successfully deleted")
+    # @auth_required(rights=['admin'])
+    @admin_permission_required
     def delete(self, pk):
         MovieService().delete_movie(pk)
         return None, 204

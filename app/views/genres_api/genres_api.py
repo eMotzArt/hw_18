@@ -1,7 +1,10 @@
 from sqlalchemy.exc import IntegrityError
 from flask_restx import Namespace, Resource, fields
+
 from app.service import GenreService
 from .parser import genre_parser
+from app.utils.decorators import login_required, uploader_permission_required, admin_permission_required
+
 
 api = Namespace('genres')
 
@@ -14,6 +17,8 @@ genre = api.model('Genre', {
 @api.route('/')
 class GenresView(Resource):
     @api.marshal_list_with(genre)
+    # @auth_required(rights=['user', 'uploader', 'admin'])
+    @login_required
     def get(self):
         return GenreService().get_genres()
 
@@ -21,15 +26,19 @@ class GenresView(Resource):
     @api.response(code=500, description="Integrity Error")
     @api.expect(genre_parser)
     @api.marshal_with(genre)
+    # @auth_required(rights=['uploader', 'admin'])
+    @uploader_permission_required
     def post(self):
         data = genre_parser.parse_args()
         return GenreService().add_new_genre(**data), 201
 
 
-@api.route('/<int:pk>')
+@api.route('/<int:pk>/')
 class GenreView(Resource):
     @api.response(code=404, description='Genre with this pk is not found in database')
     @api.marshal_with(genre)
+    # @auth_required(rights=['user', 'uploader', 'admin'])
+    @login_required
     def get(self, pk):
         if result := GenreService().get_genre_by_pk(pk):
             return result, 200
@@ -39,6 +48,8 @@ class GenreView(Resource):
     @api.response(code=201, description='Successfully updated')
     @api.expect(genre_parser)
     @api.marshal_with(genre)
+    # @auth_required(rights=['uploader', 'admin'])
+    @uploader_permission_required
     def put(self, pk):
         data = genre_parser.parse_args()
         if result := GenreService().update_genre(pk, **data):
@@ -47,6 +58,8 @@ class GenreView(Resource):
 
     @api.response(code=404, description='Director with this pk is not found in database')
     @api.response(code=204, description='Successfully updated')
+    # @auth_required(rights=['admin'])
+    @admin_permission_required
     def delete(self, pk):
         GenreService().delete_genre(pk)
         return '', 204
