@@ -52,7 +52,7 @@ class MoviesView(Resource):
         return MovieService().add_new_movie_with_names(**data)
 
 
-@api.route('/<int:pk>')
+@api.route('/<int:pk>/')
 class MovieView(Resource):
     @api.marshal_with(movie)
     @api.response(code=404, description='Item not found')
