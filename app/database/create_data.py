@@ -1,59 +1,13 @@
-import enum
-
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from app.database import db
+from app.dao.model import Director, Genre, Movie, User, UserToken
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-
-class Movie(db.Model):
-    __tablename__ = 'movie'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    trailer = db.Column(db.String(255))
-    year = db.Column(db.Integer, nullable=False)
-    rating = db.Column(db.Float)
-    genre_id = db.Column(db.Integer, db.ForeignKey("genre.id"), nullable=False)
-    genre = db.relationship("Genre", backref=db.backref("used_in_movies"))
-    director_id = db.Column(db.Integer, db.ForeignKey("director.id"), nullable=False)
-    director = db.relationship("Director", backref=db.backref("used_in_movies"))
-
-
-class Director(db.Model):
-    __tablename__ = 'director'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
-
-class Genre(db.Model):
-    __tablename__ = 'genre'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
-
-
-class RoleEnum(enum.Enum):
-    user = 'user'
-    uploader = 'uploader'
-    admin = 'admin'
-
-
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String, nullable=False)
-    role = db.Column(db.Enum(RoleEnum), nullable=False, default='user')
-    token_for_user = db.relationship("UserToken", uselist=False, back_populates="user_for_token")
-
-
-class UserToken(db.Model):
-    __tablename__ = 'refreshtokens'
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True)
-    refresh_token = db.Column(db.String, nullable=False)
-    user_for_token = db.relationship("User", back_populates="token_for_user")
+app.app_context().push()
+db.init_app(app)
 
 
 def make_bd():
