@@ -15,7 +15,8 @@ class AuthService:
         if None in [user_name, user_password]:
             abort(400)
 
-        user = self.dao.get_user_by_name(user_name)
+        if not (user := self.dao.get_user_by_name(user_name)):
+            abort(404)
 
         if not is_passwords_equals(get_hash(user_password), user.password):
             abort(401)

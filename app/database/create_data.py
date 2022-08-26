@@ -45,15 +45,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
-    role = db.Column(db.Enum(RoleEnum), nullable=False)
+    role = db.Column(db.Enum(RoleEnum), nullable=False, default='user')
+    token_for_user = db.relationship("UserToken", uselist=False, back_populates="user_for_token")
 
 
-class UserTokens(db.Model):
+class UserToken(db.Model):
     __tablename__ = 'refreshtokens'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id") )
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True)
     refresh_token = db.Column(db.String, nullable=False)
-    user = db.relationship("User", backref=db.backref("user"))
+    user_for_token = db.relationship("User", back_populates="token_for_user")
 
 
 def make_bd():
@@ -306,3 +306,4 @@ def make_bd():
             db.session.add(u)
 if __name__ == '__main__':
     make_bd()
+    x=1
