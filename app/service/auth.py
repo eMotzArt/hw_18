@@ -1,7 +1,7 @@
 from flask import abort
+
 from app.dao import AuthDAO
-from app.utils import is_passwords_equals, get_hash
-from app.utils import generate_tokens, decode_token
+from app.utils import Security
 
 class AuthService:
     def __init__(self):
@@ -18,18 +18,18 @@ class AuthService:
         if not (user := self.dao.get_user_by_name(user_name)):
             abort(404)
 
-        if not is_passwords_equals(get_hash(user_password), user.password):
+        if not Security.is_passwords_equals(Security().get_hash(user_password), user.password):
             abort(401)
 
         data['role'] = str(user.role)
         data['user_id'] = user.id
-        tokens = generate_tokens(**data)
+        tokens = Security().generate_tokens(**data)
         self.dao.record_refresh_token(user.id, tokens['refresh_token'])
         return tokens
 
     def get_tokens_by_refresh_token(self, **data):
         refresh_token = data.pop('refresh_token')
-        user_info = decode_token(refresh_token)
+        user_info = Security().decode_token(refresh_token)
         user_id = user_info.get('user_id')
         # TO DO сверить с базой токенов, сгенерить, записать, вернуть токены
 
@@ -37,7 +37,7 @@ class AuthService:
             abort(401)
 
         user_info.pop('exp')
-        tokens = generate_tokens(**user_info)
+        tokens = Security().generate_tokens(**user_info)
         self.dao.record_refresh_token(user_id, tokens['refresh_token'])
         return tokens
 

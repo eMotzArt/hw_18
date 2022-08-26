@@ -1,5 +1,5 @@
 from app.dao import UserDAO
-from app.utils.password import get_hash
+from app.utils import Security
 
 
 class UserService:
@@ -15,7 +15,7 @@ class UserService:
 
     def add_new_user(self, **data):
         password = data.get('password')
-        data['password'] = get_hash(password)
+        data['password'] = Security().get_hash(password)
         return self.dao.create_item(**data)
 
     def update_user(self, pk, **data):
