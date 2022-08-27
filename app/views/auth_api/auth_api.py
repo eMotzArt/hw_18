@@ -1,6 +1,9 @@
 from flask_restx import Namespace, Resource, fields
+
 from .parser import auth_user_parser, auth_user_refresh_token_parser
 from app.service import AuthService
+
+
 api = Namespace('auth')
 
 # api model

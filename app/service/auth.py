@@ -3,10 +3,10 @@ from flask import abort
 from app.dao import AuthDAO
 from app.utils import Security
 
+
 class AuthService:
     def __init__(self):
         self.dao = AuthDAO()
-
 
     def get_tokens_by_login_password(self, **data):
         user_name = data.get('username', None)
@@ -31,7 +31,6 @@ class AuthService:
         refresh_token = data.pop('refresh_token')
         user_info = Security().decode_token(refresh_token)
         user_id = user_info.get('user_id')
-        # TO DO сверить с базой токенов, сгенерить, записать, вернуть токены
 
         if not self.dao.compare_refresh_tokens(user_id, refresh_token):
             abort(401)
@@ -40,4 +39,3 @@ class AuthService:
         tokens = Security().generate_tokens(**user_info)
         self.dao.record_refresh_token(user_id, tokens['refresh_token'])
         return tokens
-

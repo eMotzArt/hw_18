@@ -3,6 +3,7 @@ from flask import g
 from app.database import db
 from app.dao.model import Movie, Genre, Director, User, UserToken
 
+
 class BaseDAO():
     def __init__(self):
         self.session = g.session
@@ -24,9 +25,9 @@ class BaseDAO():
         self.model.query.filter_by(id=pk).update(data)
         return self.model.query.filter_by(id=pk).first()
 
-
     def delete_item(self, pk):
         self.model.query.filter_by(id=pk).delete()
+
 
 class MovieDAO(BaseDAO):
     model = Movie
@@ -39,7 +40,6 @@ class MovieDAO(BaseDAO):
             self.session.flush()
         return item.id
 
-
     def add_movie_with_names(self, **data):
         director_name = data.pop('director_name')
         genre_name = data.pop('genre_name')
@@ -50,7 +50,6 @@ class MovieDAO(BaseDAO):
         data.update({'director_id': director_id, 'genre_id': genre_id})
         return super().create_item(**data)
 
-
     def get_items_with_filtering(self, **params):
         query = self.model.query
         for filter_ in params:
@@ -58,14 +57,18 @@ class MovieDAO(BaseDAO):
                 query = query.filter(getattr(self.model, filter_) == value)
         return query.all()
 
+
 class GenreDAO(BaseDAO):
     model = Genre
+
 
 class DirectorDAO(BaseDAO):
     model = Director
 
+
 class UserDAO(BaseDAO):
     model = User
+
 
 class AuthDAO(BaseDAO):
     model = User
@@ -87,4 +90,3 @@ class AuthDAO(BaseDAO):
             if user.refresh_token == user_refresh_token:
                 return True
         return False
-

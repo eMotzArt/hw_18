@@ -6,6 +6,8 @@ from .directors_api.directors_api import api as directors_api
 from .movies_api.movies_api import api as movies_api
 from .users_api.users_api import api as users_api
 from .auth_api.auth_api import api as auth_api
+
+
 api = Api()
 
 api.add_namespace(genres_api)

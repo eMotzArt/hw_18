@@ -260,4 +260,3 @@ def make_bd():
             db.session.add(u)
 if __name__ == '__main__':
     make_bd()
-    x=1

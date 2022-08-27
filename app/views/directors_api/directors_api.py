@@ -1,9 +1,10 @@
-from sqlalchemy.exc import IntegrityError
 from flask_restx import Namespace, Resource, fields
+from sqlalchemy.exc import IntegrityError
 
 from app.service import DirectorService
 from .parser import director_parser
-from app.utils.decorators import login_required, uploader_permission_required, admin_permission_required
+from app.utils.decorators import auth_required, UserRole
+
 
 api = Namespace('directors')
 
@@ -13,11 +14,11 @@ director = api.model('Director', {
     'name': fields.String(required=True, description='The director name')
 })
 
+
 @api.route('/')
 class DirectorsView(Resource):
     @api.marshal_list_with(director)
-    # @auth_required(rights=['user', 'uploader', 'admin'])
-    @login_required
+    @auth_required(UserRole.admin, UserRole.uploader, UserRole.user)
     def get(self):
         return DirectorService().get_directors(), 200
 
@@ -25,8 +26,7 @@ class DirectorsView(Resource):
     @api.response(code=500, description="Integrity Error")
     @api.expect(director_parser)
     @api.marshal_with(director)
-    # @auth_required(rights=['uploader', 'admin'])
-    @uploader_permission_required
+    @auth_required(UserRole.admin, UserRole.uploader)
     def post(self):
         data = director_parser.parse_args()
         return DirectorService().add_new_director(**data), 201
@@ -36,8 +36,7 @@ class DirectorsView(Resource):
 class DirectorView(Resource):
     @api.marshal_with(director)
     @api.response(code=404, description='Director with this pk is not found in database')
-    # @auth_required(rights=['user', 'uploader', 'admin'])
-    @login_required
+    @auth_required(UserRole.admin, UserRole.uploader, UserRole.user)
     def get(self, pk):
         if result := DirectorService().get_director_by_pk(pk):
             return result, 200
@@ -47,8 +46,7 @@ class DirectorView(Resource):
     @api.response(code=201, description='Successfully updated')
     @api.expect(director_parser)
     @api.marshal_with(director)
-    # @auth_required(rights=['uploader', 'admin'])
-    @uploader_permission_required
+    @auth_required(UserRole.admin, UserRole.uploader)
     def put(self, pk):
         data = director_parser.parse_args()
         if result := DirectorService().update_director(pk, **data):
@@ -57,8 +55,7 @@ class DirectorView(Resource):
 
     @api.response(code=204, description='Successfully deleted')
     @api.response(code=404, description='Director with this pk is not found in database')
-    # @auth_required(rights=['admin'])
-    @admin_permission_required
+    @auth_required(UserRole.admin)
     def delete(self, pk):
         DirectorService().delete_director(pk)
         return '', 204

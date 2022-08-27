@@ -1,5 +1,6 @@
 from app.dao import GenreDAO
 
+
 class GenreService:
 
     def __init__(self):

@@ -6,7 +6,6 @@ class UserService:
     def __init__(self):
         self.dao = UserDAO()
 
-
     def get_users(self):
         return self.dao.get_items()
 

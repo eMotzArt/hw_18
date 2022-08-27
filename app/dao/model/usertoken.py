@@ -1,5 +1,6 @@
 from app.database import db
 
+
 class UserToken(db.Model):
     __tablename__ = 'refreshtokens'
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True)

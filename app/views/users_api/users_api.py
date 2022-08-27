@@ -1,6 +1,9 @@
 from flask_restx import Namespace, Resource, fields
+from sqlalchemy.exc import IntegrityError
+
 from app.views.users_api.parser import user_parser
 from app.service import UserService
+
 
 api = Namespace('users')
 
@@ -44,3 +47,8 @@ class UserView(Resource):
     def delete(self, pk):
         UserService().delete_user(pk)
         return None, 204
+
+    @api.errorhandler(IntegrityError)
+    def handle_exception(error):
+        message = f"Error: {error.orig} with params: {error.params}"
+        return {'message': message}, 500
