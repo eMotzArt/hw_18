@@ -1,7 +1,8 @@
 from flask import g
 
 from app.database import db
-from app.dao.model import Movie, Genre, Director
+from app.dao.model import Movie, Genre, Director, User, UserToken
+
 
 class BaseDAO():
     def __init__(self):
@@ -22,9 +23,11 @@ class BaseDAO():
 
     def update_item(self, pk, **data):
         self.model.query.filter_by(id=pk).update(data)
+        return self.model.query.filter_by(id=pk).first()
 
     def delete_item(self, pk):
         self.model.query.filter_by(id=pk).delete()
+
 
 class MovieDAO(BaseDAO):
     model = Movie
@@ -37,7 +40,6 @@ class MovieDAO(BaseDAO):
             self.session.flush()
         return item.id
 
-
     def add_movie_with_names(self, **data):
         director_name = data.pop('director_name')
         genre_name = data.pop('genre_name')
@@ -48,7 +50,6 @@ class MovieDAO(BaseDAO):
         data.update({'director_id': director_id, 'genre_id': genre_id})
         return super().create_item(**data)
 
-
     def get_items_with_filtering(self, **params):
         query = self.model.query
         for filter_ in params:
@@ -56,8 +57,36 @@ class MovieDAO(BaseDAO):
                 query = query.filter(getattr(self.model, filter_) == value)
         return query.all()
 
+
 class GenreDAO(BaseDAO):
     model = Genre
 
+
 class DirectorDAO(BaseDAO):
     model = Director
+
+
+class UserDAO(BaseDAO):
+    model = User
+
+
+class AuthDAO(BaseDAO):
+    model = User
+
+    def get_user_by_name(self, username):
+        if user := self.model.query.filter_by(username=username).first():
+            return user
+
+    def record_refresh_token(self, user_id, token):
+        if user := self.session.query(UserToken).filter_by(user_id=user_id).first():
+            user.refresh_token = token
+        else:
+            user_token = UserToken(user_id=user_id, refresh_token=token)
+            self.session.add(user_token)
+        self.session.flush()
+
+    def compare_refresh_tokens(self, user_id, user_refresh_token):
+        if user := self.session.query(UserToken).filter_by(user_id=user_id).first():
+            if user.refresh_token == user_refresh_token:
+                return True
+        return False

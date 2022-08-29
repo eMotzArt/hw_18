@@ -1,35 +1,14 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from app.database import db
+from app.dao.model import Director, Genre, Movie, User, UserToken
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.app_context().push()
+db.init_app(app)
 
-
-class Movie(db.Model):
-    __tablename__ = 'movie'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    trailer = db.Column(db.String(255))
-    year = db.Column(db.Integer, nullable=False)
-    rating = db.Column(db.Float)
-    genre_id = db.Column(db.Integer, db.ForeignKey("genre.id"), nullable=False)
-    genre = db.relationship("Genre", backref=db.backref("used_in_movies"))
-    director_id = db.Column(db.Integer, db.ForeignKey("director.id"), nullable=False)
-    director = db.relationship("Director", backref=db.backref("used_in_movies"))
-
-
-class Director(db.Model):
-    __tablename__ = 'director'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-
-class Genre(db.Model):
-    __tablename__ = 'genre'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
 
 def make_bd():
     db.drop_all()
@@ -236,6 +215,11 @@ def make_bd():
             {"name": "Короткометражка", "pk": 10}, {"name": "Ужасы", "pk": 11}, {"name": "Боевик", "pk": 12},
             {"name": "Мелодрама", "pk": 13}, {"name": "Детектив", "pk": 14}, {"name": "Авторское кино", "pk": 15},
             {"name": "Мультфильм", "pk": 16}, {"name": "Вестерн", "pk": 17}, {"name": "Мюзикл", "pk": 18}],
+        "users": [
+            {"username": "user", "password": "user_password", "role": "user"},
+            {"username": "uploader", "password": "uploader_password", "role": "uploader"},
+            {"username": "admin", "password": "GOD", "role": "admin"},
+        ]
     }
     # -------------------------------------------------------
 
@@ -268,5 +252,11 @@ def make_bd():
         )
         with db.session.begin():
             db.session.add(d)
+
+    for user in data["users"]:
+        u = User(**user
+        )
+        with db.session.begin():
+            db.session.add(u)
 if __name__ == '__main__':
     make_bd()
