@@ -14,19 +14,25 @@ class TestDirectorService:
         assert len(all_directors) > 0
 
     def test_get_director_by_pk(self):
-        director = self.director_service.get_director_by_pk(2)
+        director = self.director_service.get_director_by_pk(1)
         assert director is not None
-        assert director.id is not None
+        assert director.id == 1
+        assert director.name == 'Имя 1'
 
     def test_add_new_director(self):
-        data = {'name':  'new_Genre'}
+        data = {'name':  'Имя 4'}
         new_director = self.director_service.add_new_director(**data)
+        assert new_director is not None
         assert new_director.id is not None
+        assert new_director.name == data['name']
 
 
     def test_update_director(self):
-        data = {'name':  'changed_genre'}
-        self.director_service.update_director(1, **data)
+        data = {'name':  'Имя 1'}
+        director = self.director_service.update_director(1, **data)
+        assert director is not None
+        assert director.id == 1
+        assert director.name == data['name']
 
     def test_delete_director(self):
         self.director_service.delete_director(1)

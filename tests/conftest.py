@@ -16,7 +16,7 @@ def genre_dao():
     genre_dao.get_items = MagicMock(return_value=[genre_1, genre_2, genre_3])
     genre_dao.create_item = MagicMock(return_value=Genre(id=4, name="Мюзикл"))
     genre_dao.delete_item = MagicMock()
-    genre_dao.update_item = MagicMock()
+    genre_dao.update_item = MagicMock(return_value=genre_1)
     return genre_dao
 
 
@@ -31,7 +31,7 @@ def director_dao():
     director_dao.get_items = MagicMock(return_value=[director_1, director_2, director_3])
     director_dao.create_item = MagicMock(return_value=Director(id=4, name="Имя 4"))
     director_dao.delete_item = MagicMock()
-    director_dao.update_item = MagicMock()
+    director_dao.update_item = MagicMock(return_value=director_1)
     return director_dao
 
 @pytest.fixture()
@@ -45,7 +45,7 @@ def movie_dao():
     movie_dao.get_items = MagicMock(return_value=[movie_1, movie_2, movie_3])
     movie_dao.create_item = MagicMock(return_value=Movie(id=4, title="title_4", description='desc_4', trailer='youtube_4', year=1994, rating=9.9, genre_id=4, director_id=4))
     movie_dao.delete_item = MagicMock()
-    movie_dao.update_item = MagicMock()
+    movie_dao.update_item = MagicMock(return_value=Movie(id=2, title='new_title', description='new_desc', trailer='new_tube', year=1990, rating=0.1, genre_id=5, director_id=5))
     movie_dao.add_movie_with_names = MagicMock(return_value=Movie(id=5, title="title_5", description='desc_5', trailer='youtube_5', year=1995, rating=10.0, genre_id=5, director_id=5))
     movie_dao.get_items_with_filtering = MagicMock(return_value=movie_3)
     return movie_dao
